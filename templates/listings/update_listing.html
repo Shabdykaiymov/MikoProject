@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Редактирование объявления | MikoMarket{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Редактирование объявления</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">Название:</label>
+                        {{ form.title.errors }}
+                        {{ form.title|add_class:"form-control" }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.category.id_for_label }}" class="form-label">Категория:</label>
+                        {{ form.category.errors }}
+                        {{ form.category|add_class:"form-select" }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.price.id_for_label }}" class="form-label">Цена:</label>
+                        {{ form.price.errors }}
+                        {{ form.price|add_class:"form-control" }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">Описание:</label>
+                        {{ form.description.errors }}
+                        {{ form.description|add_class:"form-control" }}
+                    </div>
+
+                    <!-- Поле адреса -->
+                    <div class="mb-3">
+                        <label for="id_address" class="form-label">Адрес:</label>
+                        <input type="text" id="id_address" name="address" value="{{ form.instance.address }}" class="form-control">
+                        <small class="text-muted">Укажите точный адрес для карты</small>
+                    </div>
+
+                    <!-- Контейнер для карты -->
+                    <div class="mb-3">
+                        <div id="map" style="width: 100%; height: 300px;"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.contact_info.id_for_label }}" class="form-label">Контактная информация:</label>
+                        {{ form.contact_info.errors }}
+                        {{ form.contact_info|add_class:"form-control" }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="{{ form.image.id_for_label }}" class="form-label">Текущее изображение:</label>
+                        {% if form.instance.image %}
+                            <div class="mb-2">
+                                <img src="{{ form.instance.image.url }}" alt="Текущее изображение" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Нет изображения</p>
+                        {% endif %}
+
+                        {{ form.image.errors }}
+                        {{ form.image|add_class:"form-control" }}
+                        <small class="text-muted">Загрузите новое изображение, чтобы заменить текущее</small>
+                    </div>
+
+                    <div class="mb-3 d-flex justify-content-between">
+                        <a href="{% url 'listing_detail' form.instance.pk %}" class="btn btn-secondary">Отмена</a>
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Подключаем API Яндекс.Карт -->
+<script src="https://api-maps.yandex.ru/2.1/?apikey=d5bb49c5-44d2-4d85-afc8-3e8387cb4bf6&lang=ru_RU" type="text/javascript"></script>
+<script>
+    ymaps.ready(init);
+
+    function init() {
+        // Инициализация карты
+        var map = new ymaps.Map('map', {
+            center: [55.751574, 37.573856], // Москва по умолчанию
+            zoom: 10
+        });
+
+        // Инициализация подсказок для поля адреса
+        var suggestView = new ymaps.SuggestView('id_address');
+
+        // Если у объявления уже есть адрес - показываем его на карте
+        {% if form.instance.address %}
+            updateMap('{{ form.instance.address }}');
+        {% endif %}
+
+        // Обработчик изменения поля адреса
+        document.getElementById('id_address').addEventListener('change', function() {
+            updateMap(this.value);
+        });
+
+        function updateMap(address) {
+            if (address) {
+                ymaps.geocode(address).then(function(res) {
+                    var firstGeoObject = res.geoObjects.get(0);
+                    if (firstGeoObject) {
+                        var coordinates = firstGeoObject.geometry.getCoordinates();
+                        map.geoObjects.removeAll();
+                        map.geoObjects.add(firstGeoObject);
+                        map.setCenter(coordinates, 15);
+                    }
+                });
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Создать объявление | MikoMarket{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h5 mb-0">Создать новое объявление</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.title.label }}</label>
+                            {% render_field form.title class="form-control" placeholder=form.title.label %}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.title.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.category.label }}</label>
+                            {% render_field form.category class="form-select" %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.price.label }}</label>
+                            <div class="input-group">
+                                {% render_field form.price class="form-control" placeholder=form.price.label %}
+                                <span class="input-group-text bg-light-primary">С</span>
+                            </div>
+                            {% if form.price.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.price.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.description.label }}</label>
+                            {% render_field form.description class="form-control" rows=5 placeholder=form.description.label %}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Поле для местоположения -->
+                        <div class="mb-3">
+                            <label class="form-label">Местоположение</label>
+                            <div class="input-group mb-2">
+                                {{ form.map_address }}
+                                <button class="btn btn-primary text-white" type="button" id="save-address-btn">
+                                    <i class="fas fa-save"></i> Сохранить
+                                </button>
+                            </div>
+                            {{ form.address }}
+                            <div id="map" style="width: 100%; height: 300px; margin-top: 10px;"></div>
+                            <input type="hidden" id="latitude" name="latitude">
+                            <input type="hidden" id="longitude" name="longitude">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.contact_info.label }}</label>
+                            {% render_field form.contact_info class="form-control" placeholder=form.contact_info.label %}
+                            <small class="text-muted">Как с вами связаться?</small>
+                            {% if form.contact_info.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.contact_info.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">{{ form.image.label }}</label>
+                            {% render_field form.image class="form-control" %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg text-white">
+                                <i class="fas fa-paper-plane me-2"></i> Опубликовать
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-secondary">
+                                Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-primary {
+        background-color: #000fe3;
+    }
+
+    .btn-primary {
+        background-color: #000fe3;
+        border-color: #0008b5;
+    }
+
+    .btn-primary:hover {
+        background-color: #0008b5;
+        border-color: #00067d;
+    }
+
+    .border-primary {
+        border-color: #000fe3 !important;
+    }
+
+    .bg-light-primary {
+        background-color: #d6d8ff;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #3a49e4;
+        box-shadow: 0 0 0 0.25rem rgba(0, 15, 227, 0.25);
+    }
+
+    .shadow {
+        box-shadow: 0 0.5rem 1rem rgba(0, 15, 227, 0.15) !important;
+    }
+
+    /* Стили для темной темы */
+    [data-theme="dark"] .bg-primary {
+        background-color: #000000 !important;
+    }
+
+    [data-theme="dark"] .btn-primary {
+        background-color: #000000;
+        border-color: #000000;
+    }
+
+    [data-theme="dark"] .btn-primary:hover {
+        background-color: #333;
+        border-color: #333;
+    }
+
+    [data-theme="dark"] .bg-light-primary {
+        background-color: #333;
+    }
+
+    [data-theme="dark"] .card {
+        background-color: #2d2d2d;
+        color: #f0f0f0;
+    }
+
+    [data-theme="dark"] .card-header {
+        border-bottom-color: #444;
+    }
+
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .form-select {
+        background-color: #333;
+        color: #fff;
+        border-color: #444;
+    }
+
+    [data-theme="dark"] .form-control:focus,
+    [data-theme="dark"] .form-select:focus {
+        background-color: #333;
+        color: #fff;
+        border-color: #555;
+        box-shadow: 0 0 0 0.25rem rgba(58, 125, 255, 0.25);
+    }
+
+    [data-theme="dark"] .form-label {
+        color: #f0f0f0;
+    }
+
+    [data-theme="dark"] .text-muted {
+        color: #a0a0a0 !important;
+    }
+
+    [data-theme="dark"] .alert-danger {
+        background-color: #5a1a1a;
+        border-color: #7a2a2a;
+        color: #f0f0f0;
+    }
+
+    /* Стили для плейсхолдеров в темной теме */
+    [data-theme="dark"] .form-control::placeholder,
+    [data-theme="dark"] .form-select::placeholder {
+        color: #ffffff !important;
+        opacity: 0.7;
+    }
+
+    [data-theme="dark"] .input-group-text {
+        background-color: #444;
+        color: #fff;
+        border-color: #555;
+    }
+</style>
+
+<script src="https://api-maps.yandex.ru/2.1/?apikey=d5bb49c5-44d2-4d85-afc8-3e8387cb4bf6&lang=ru_RU" type="text/javascript"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        ymaps.ready(initMap);
+
+        function initMap() {
+            var defaultCoords = [42.8746, 74.5698];
+            var map = new ymaps.Map('map', {
+                center: defaultCoords,
+                zoom: 12,
+                controls: ['zoomControl', 'searchControl']
+            });
+
+            var placemark;
+            var addressInput = document.getElementById('map_address');
+            var hiddenAddressField = document.getElementById('id_address');
+            var latitudeInput = document.getElementById('latitude');
+            var longitudeInput = document.getElementById('longitude');
+            var saveAddressBtn = document.getElementById('save-address-btn');
+
+            function geocodeAddress() {
+                var address = addressInput.value;
+                if (address.length > 3) {
+                    ymaps.geocode(address).then(function(res) {
+                        var firstGeoObject = res.geoObjects.get(0);
+                        if (firstGeoObject) {
+                            var coords = firstGeoObject.geometry.getCoordinates();
+                            if (placemark) {
+                                map.geoObjects.remove(placemark);
+                            }
+                            placemark = new ymaps.Placemark(coords, {}, {
+                                preset: 'islands#blueDotIcon',
+                                draggable: true
+                            });
+                            map.geoObjects.add(placemark);
+                            map.setCenter(coords, 15);
+                            latitudeInput.value = coords[0];
+                            longitudeInput.value = coords[1];
+                            hiddenAddressField.value = address;
+
+                            placemark.events.add('dragend', function() {
+                                var newCoords = placemark.geometry.getCoordinates();
+                                ymaps.geocode(newCoords).then(function(res) {
+                                    var geoObj = res.geoObjects.get(0);
+                                    var newAddress = geoObj.getAddressLine();
+                                    addressInput.value = newAddress;
+                                    hiddenAddressField.value = newAddress;
+                                    latitudeInput.value = newCoords[0];
+                                    longitudeInput.value = newCoords[1];
+                                });
+                            });
+                        }
+                    });
+                }
+            }
+
+            saveAddressBtn.addEventListener('click', geocodeAddress);
+
+            addressInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    geocodeAddress();
+                }
+            });
+
+            map.events.add('click', function(e) {
+                var coords = e.get('coords');
+                if (placemark) {
+                    map.geoObjects.remove(placemark);
+                }
+                placemark = new ymaps.Placemark(coords, {}, {
+                    preset: 'islands#blueDotIcon',
+                    draggable: true
+                });
+                map.geoObjects.add(placemark);
+                ymaps.geocode(coords).then(function(res) {
+                    var geoObj = res.geoObjects.get(0);
+                    var address = geoObj.getAddressLine();
+                    addressInput.value = address;
+                    hiddenAddressField.value = address;
+                    latitudeInput.value = coords[0];
+                    longitudeInput.value = coords[1];
+                });
+
+                placemark.events.add('dragend', function() {
+                    var newCoords = placemark.geometry.getCoordinates();
+                    ymaps.geocode(newCoords).then(function(res) {
+                        var geoObj = res.geoObjects.get(0);
+                        var address = geoObj.getAddressLine();
+                        addressInput.value = address;
+                        hiddenAddressField.value = address;
+                        latitudeInput.value = newCoords[0];
+                        longitudeInput.value = newCoords[1];
+                    });
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

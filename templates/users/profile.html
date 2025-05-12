@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Профиль | MikoMarket{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0">Профиль</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if user.profile.image %}
+                            <img src="{{ user.profile.image.url }}" class="rounded-circle mb-2" width="100" height="100" alt="Аватар">
+                        {% else %}
+                            <div class="rounded-circle bg-light-primary d-flex align-items-center justify-content-center mb-2" style="width: 100px; height: 100px;">
+                                <i class="fas fa-user fa-3x text-primary"></i>
+                            </div>
+                        {% endif %}
+                        <h4>{{ user.username }}</h4>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ profile_form.phone.id_for_label }}" class="form-label">Телефон:</label>
+                            {% if profile_form.phone.errors %}
+                                <div class="alert alert-danger">
+                                    {{ profile_form.phone.errors }}
+                                </div>
+                            {% endif %}
+                            {% render_field profile_form.phone class="form-control" placeholder=profile_form.phone.label %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ profile_form.address.id_for_label }}" class="form-label">Адрес:</label>
+                            {% if profile_form.address.errors %}
+                                <div class="alert alert-danger">
+                                    {{ profile_form.address.errors }}
+                                </div>
+                            {% endif %}
+                            {% render_field profile_form.address class="form-control" placeholder=profile_form.address.label %}
+
+                            {% if profile_form.address.value %}
+                                <a href="https://yandex.com/maps/?text={{ profile_form.address.value|urlencode }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="fas fa-map-marked-alt"></i> Открыть в Яндекс.Картах
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ profile_form.image.id_for_label }}" class="form-label">Аватар:</label>
+                            {% render_field profile_form.image class="form-control" %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary text-white">Обновить профиль</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0">Мои объявления</h3>
+                    <a href="{% url 'create_listing' %}" class="btn btn-light-primary btn-sm">
+                        <i class="fas fa-plus"></i> Создать новое
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if user_listings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light-primary">
+                                    <tr>
+                                        <th>Название</th>
+                                        <th>Категория</th>
+                                        <th>Цена</th>
+                                        <th>Статус</th>
+                                        <th>Дата</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for listing in user_listings %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'listing_detail' listing.id %}" class="text-primary">{{ listing.title|truncatechars:20 }}</a>
+                                        </td>
+                                        <td>{{ listing.category.name }}</td>
+                                        <td>{{ listing.price }} ₽</td>
+                                        <td>
+                                            <span class="badge bg-{% if listing.is_active %}success{% else %}secondary{% endif %}">
+                                                {% if listing.is_active %}Активно{% else %}Неактивно{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>{{ listing.created_at|date:"d.m.Y" }}</td>
+                                        <td class="d-flex gap-1">
+                                            <a href="{% url 'listing_detail' listing.id %}" class="btn btn-sm btn-outline-primary" title="Просмотр">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'update_listing' listing.id %}" class="btn btn-sm btn-outline-primary" title="Редактировать">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'delete_listing' listing.id %}" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-light-primary text-center">
+                            <p class="mb-3">У вас пока нет объявлений.</p>
+                            <a href="{% url 'create_listing' %}" class="btn btn-primary text-white">Создать первое объявление</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Blue color scheme */
+    .bg-primary {
+        background-color: #000fe3;
+    }
+
+    .btn-primary {
+        background-color: #000fe3;
+        border-color: #0008b5;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0008b5;
+        border-color: #00067d;
+        color: white;
+    }
+
+    .border-primary {
+        border-color: #000fe3 !important;
+    }
+
+    .bg-light-primary {
+        background-color: #d6d8ff;
+    }
+
+    .btn-light-primary {
+        background-color: #d6d8ff;
+        border-color: #b3b7ff;
+    }
+
+    .btn-light-primary:hover {
+        background-color: #b3b7ff;
+        border-color: #8f95ff;
+    }
+
+    .table-light-primary {
+        background-color: #f0f1ff;
+    }
+
+    .alert-light-primary {
+        background-color: #f0f1ff;
+        border-color: #d6d8ff;
+        color: #00067d;
+    }
+
+    .btn-outline-primary {
+        color: #000fe3;
+        border-color: #000fe3;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #000fe3;
+        color: white;
+    }
+
+    .text-primary {
+        color: #000fe3 !important;
+    }
+
+    /* Form focus styles */
+    .form-control:focus {
+        border-color: #3a49e4;
+        box-shadow: 0 0 0 0.25rem rgba(0, 15, 227, 0.25);
+    }
+
+    /* Card shadow enhancement */
+    .shadow-sm {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 15, 227, 0.1) !important;
+    }
+
+    /* Dark theme styles */
+    [data-theme="dark"] .bg-primary {
+        background-color: #000000 !important;
+    }
+
+    [data-theme="dark"] .btn-primary {
+        background-color: #000000;
+        border-color: #000000;
+        color: white;
+    }
+
+    [data-theme="dark"] .btn-primary:hover {
+        background-color: #333;
+        border-color: #333;
+    }
+
+    [data-theme="dark"] .bg-light-primary {
+        background-color: #333 !important;
+    }
+
+    [data-theme="dark"] .btn-light-primary {
+        background-color: #333;
+        border-color: #444;
+        color: white;
+    }
+
+    [data-theme="dark"] .btn-light-primary:hover {
+        background-color: #444;
+        border-color: #555;
+    }
+
+    [data-theme="dark"] .table-light-primary {
+        background-color: #2d2d2d !important;
+        color: #f0f0f0;
+    }
+
+    [data-theme="dark"] .alert-light-primary {
+        background-color: #333;
+        border-color: #444;
+        color: #f0f0f0;
+    }
+
+    [data-theme="dark"] .btn-outline-primary {
+        color: #7a85f0;
+        border-color: #7a85f0;
+    }
+
+    [data-theme="dark"] .btn-outline-primary:hover {
+        background-color: #7a85f0;
+        color: white;
+    }
+
+    [data-theme="dark"] .text-primary {
+        color: #7a85f0 !important;
+    }
+
+    [data-theme="dark"] .card {
+        background-color: #2d2d2d;
+        color: #f0f0f0;
+    }
+
+    [data-theme="dark"] .card-header {
+        border-bottom-color: #444;
+    }
+
+    [data-theme="dark"] .form-control {
+        background-color: #333;
+        color: #fff;
+        border-color: #444;
+    }
+
+    [data-theme="dark"] .form-control:focus {
+        background-color: #333;
+        color: #fff;
+        border-color: #555;
+        box-shadow: 0 0 0 0.25rem rgba(58, 125, 255, 0.25);
+    }
+
+    [data-theme="dark"] .form-label {
+        color: #f0f0f0;
+    }
+
+    [data-theme="dark"] .text-muted {
+        color: #a0a0a0 !important;
+    }
+
+    [data-theme="dark"] .alert-danger {
+        background-color: #5a1a1a;
+        border-color: #7a2a2a;
+        color: #f0f0f0;
+    }
+
+    /* Table styles for dark theme */
+    [data-theme="dark"] .table {
+        --bs-table-color-type: initial;
+        --bs-table-bg-type: initial;
+        --bs-table-color-state: initial;
+        --bs-table-bg-state: initial;
+        --bs-table-color: #fffdfd;
+        --bs-table-bg: #2d2d2d;
+        --bs-table-border-color: var(--bs-border-color);
+        --bs-table-accent-bg: transparent;
+        --bs-table-striped-color: #fff6f6;
+        --bs-table-striped-bg: rgba(var(--bs-emphasis-color-rgb), 0.05);
+        --bs-table-active-color: var(--bs-emphasis-color);
+        --bs-table-active-bg: rgba(var(--bs-emphasis-color-rgb), 0.1);
+        --bs-table-hover-color: #fff5f5;
+        --bs-table-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.075);
+        width: 100%;
+        margin-bottom: 1rem;
+        vertical-align: top;
+        border-color: var(--bs-table-border-color);
+    }
+
+    [data-theme="dark"] .table > :not(caption) > * > * {
+        background-color: var(--bs-table-bg);
+        color: var(--bs-table-color);
+        border-bottom-color: var(--bs-table-border-color);
+    }
+
+    [data-theme="dark"] .table-hover tbody tr:hover {
+        color: var(--bs-table-hover-color);
+        background-color: var(--bs-table-hover-bg);
+    }
+
+    [data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) > * {
+        --bs-table-color-type: var(--bs-table-striped-color);
+        --bs-table-bg-type: var(--bs-table-striped-bg);
+    }
+
+    [data-theme="dark"] .badge.bg-success {
+        background-color: #1a5a1a !important;
+    }
+
+    [data-theme="dark"] .badge.bg-secondary {
+        background-color: #3a3a3a !important;
+    }
+
+    /* Placeholder styles for dark theme */
+    [data-theme="dark"] .form-control::placeholder {
+        color: #ffffff !important;
+        opacity: 0.7;
+    }
+
+    [data-theme="dark"] .rounded-circle.bg-light-primary {
+        background-color: #333 !important;
+    }
+
+    [data-theme="dark"] .fa-user.text-primary {
+        color: #7a85f0 !important;
+    }
+</style>
+{% endblock %}

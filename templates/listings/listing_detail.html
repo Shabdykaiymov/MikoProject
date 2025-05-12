@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.title }} | MikoMarket{% endblock %}
+
+{% block extra_head %}
+<style>
+    .address-display {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+    }
+    .show-map-btn {
+        color: #ffffff;
+        border-color: #ffffff;
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
+    @media (max-width: 768px) {
+        .address-display {
+            font-size: 14px;
+        }
+    }
+
+    /* Стили для светлой темы */
+    .bg-primary {
+        background-color: #000fe3 !important;
+    }
+    .btn-primary {
+        background-color: #000fe3;
+        border-color: #0008b5;
+    }
+    .btn-primary:hover {
+        background-color: #0008b5;
+        border-color: #00067d;
+    }
+    .text-primary {
+        color: #000fe3 !important;
+    }
+    .btn-outline-primary {
+        color: #000fe3;
+        border-color: #000fe3;
+    }
+    /* Стили для темной темы */
+    [data-theme="dark"] .address-display {
+        background: #333;
+        color: #f0f0f0;
+    }
+    [data-theme="dark"] .btn-outline-primary {
+        color: #ffffff;
+        border-color: #ffffff;
+    }
+    [data-theme="dark"] .btn-outline-primary:hover {
+        background-color: #7a85f0;
+        color: white;
+    }
+    [data-theme="dark"] .text-primary {
+        --bs-text-opacity: 1;
+        color: rgb(243 248 255) !important;
+    }
+    [data-theme="dark"] .bg-light {
+        background-color: #333 !important;
+    }
+    [data-theme="dark"] .text-muted {
+        color: #a0a0a0 !important;
+    }
+    [data-theme="dark"] .alert-info {
+        background-color: #1a3a5a;
+        border-color: #2a4a6a;
+        color: #e0e0e0;
+    }
+    [data-theme="dark"] .card {
+        background-color: #2d2d2d;
+        color: #f0f0f0;
+    }
+    [data-theme="dark"] .card-body {
+        background-color: #2d2d2d;
+    }
+    [data-theme="dark"] .badge.bg-primary {
+        background-color: #000000 !important;
+    }
+    .btn-bookmark {
+        transition: all 0.3s ease;
+    }
+    .btn-bookmark:hover {
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow border-primary">
+        <div class="row g-0">
+            <!-- Изображение -->
+            <div class="col-md-5">
+                {% if listing.image %}
+                    <img src="{{ listing.image.url }}" class="img-fluid rounded-start" alt="{{ listing.title }}" style="max-height: 500px; width: 100%; object-fit: cover;">
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 100%; min-height: 300px;">
+                        <p class="text-muted">Нет изображения</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Информация -->
+            <div class="col-md-7">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h1 class="card-title mb-2">{{ listing.title }}</h1>
+                            <span class="badge bg-primary">{{ listing.category.name }}</span>
+                        </div>
+                        <h3 class="text-primary">{{ listing.price }} сом</h3>
+                    </div>
+
+                    <hr>
+
+                    <div class="mb-4">
+                        <h5>Описание</h5>
+                        <p class="card-text">{{ listing.description|linebreaks }}</p>
+                    </div>
+
+                    {% if listing.address %}
+                        <div class="mb-3">
+                            <h5>Адрес</h5>
+                            <div class="address-display">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <span>{{ listing.address }}</span>
+                            </div>
+
+                            <!-- Кнопка для открытия в Яндекс.Картах -->
+                            <a class="btn btn-outline-primary show-map-btn" target="_blank"
+                               href="https://yandex.com/maps/?text={{ listing.address|urlencode }}">
+                                <i class="fas fa-external-link-square-alt"></i> Открыть в Яндекс.Картах
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">Адрес не указан</div>
+                    {% endif %}
+
+                    <!-- Контакты -->
+                    <div class="mb-4">
+                        <h5>Контактная информация</h5>
+                        <p class="card-text">{{ listing.contact_info }}</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            <i class="far fa-user"></i> {{ listing.user.username }}<br>
+                            <i class="far fa-clock"></i> {{ listing.created_at|date:"d.m.Y H:i" }}
+                        </div>
+
+                        <div class="btn-group">
+                            {% if listing.user == user %}
+                                <a href="{% url 'update_listing' listing.id %}" class="btn btn-primary">
+                                    <i class="fas fa-edit"></i> Редактировать
+                                </a>
+                                <a href="{% url 'delete_listing' listing.id %}" class="btn btn-danger">
+                                    <i class="fas fa-trash"></i> Удалить
+                                </a>
+                            {% else %}
+                                <form method="post" action="{% url 'save_listing' listing.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-primary btn-bookmark">
+                                        {% if request.user in listing.saved_by_users.all %}
+                                            <i class="fas fa-bookmark"></i> В корзине
+                                        {% else %}
+                                            <i class="far fa-bookmark"></i> В корзину
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Вернуться к списку
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ru" class="h-100" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MikoMarket - площадка для объявлений">
+    <meta name="keywords" content="объявления, продажа, покупка">
+
+    <title>{% block title %}MikoMarket{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+    <!-- Кастомные стили -->
+    <style>
+        :root {
+            --primary-color: #000fe3;
+            --secondary-color: #3a49e4;
+            --accent-color: #7a85f0;
+            --dark-color: #292929;
+            --light-color: #FFF8F0;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-muted: #6c757d;
+            --border-color: #ced4da;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+        }
+
+        /* ТЁМНАЯ ТЕМА */
+        [data-theme="dark"] {
+            --primary-color: #6c5ce7;
+            --secondary-color: #a29bfe;
+            --accent-color: #fd79a8;
+            --dark-color: #1a1a2e;
+            --light-color: #16213e;
+            --card-bg: #0f3460;
+            --text-color: #e2e2e2;
+            --text-muted: #b8b8b8;
+            --border-color: #2d4059;
+            --success-color: #00b894;
+            --danger-color: #ff7675;
+            --warning-color: #fdcb6e;
+            --info-color: #0984e3;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: 56px;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--light-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease, color 0.3s ease;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: 0 4px 12px rgba(0, 15, 227, 0.3);
+            transition: all 0.5s ease;
+        }
+
+        [data-theme="dark"] .navbar {
+            background: linear-gradient(135deg, var(--dark-color), #1a1a2e);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: white;
+            bottom: 0;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover:after {
+            width: 100%;
+        }
+
+        .footer {
+            background: linear-gradient(135deg, var(--dark-color), #1a1a1a);
+            color: white;
+            transition: all 0.5s ease;
+        }
+
+        [data-theme="dark"] .footer {
+            background: linear-gradient(135deg, #0f0c29, #1a1a2e);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .alert {
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .alert-success {
+            background-color: rgba(0, 184, 148, 0.2);
+            border-color: var(--success-color);
+            color: #a8f3e6;
+        }
+
+        [data-theme="dark"] .alert-danger {
+            background-color: rgba(255, 118, 117, 0.2);
+            border-color: var(--danger-color);
+            color: #ffd1d1;
+        }
+
+        [data-theme="dark"] .alert-warning {
+            background-color: rgba(253, 203, 110, 0.2);
+            border-color: var(--warning-color);
+            color: #f8e5b9;
+        }
+
+        [data-theme="dark"] .alert-info {
+            background-color: rgba(9, 132, 227, 0.2);
+            border-color: var(--info-color);
+            color: #b8e3ff;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        [data-theme="dark"] .card {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(108, 92, 231, 0.25);
+            border: 1px solid var(--primary-color);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 15, 227, 0.2);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            font-weight: 500;
+            padding: 8px 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0008b5;
+            border-color: #0008b5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 15, 227, 0.3);
+        }
+
+        [data-theme="dark"] .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        [data-theme="dark"] .btn-primary:hover {
+            background-color: #5d4acb;
+            border-color: #5d4acb;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .dropdown-menu {
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border: none;
+            background-color: var(--card-bg);
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .dropdown-menu {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+        }
+
+        .dropdown-item {
+            transition: all 0.2s ease;
+            color: var(--text-color);
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(0, 15, 227, 0.1);
+            transform: translateX(5px);
+        }
+
+        [data-theme="dark"] .dropdown-item:hover {
+            background-color: rgba(108, 92, 231, 0.2);
+            color: white;
+        }
+
+        .logout-form {
+            display: inline;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            padding: 0.25rem 1.5rem;
+            color: #dc3545 !important;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+
+        .gradient-text {
+            background-clip: text;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulse-dark {
+            0% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(108, 92, 231, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0); }
+        }
+
+        .btn-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        [data-theme="dark"] .btn-pulse {
+            animation: pulse-dark 2s infinite;
+        }
+
+        .social-icon {
+            transition: all 0.3s ease;
+            color: white;
+            margin: 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .social-icon:hover {
+            color: var(--accent-color);
+            transform: translateY(-3px) scale(1.1);
+        }
+
+        [data-theme="dark"] .social-icon {
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        [data-theme="dark"] .social-icon:hover {
+            color: var(--accent-color);
+            opacity: 1;
+            transform: translateY(-3px) scale(1.2);
+        }
+
+        /* Стили для форм */
+        .form-control, .form-select {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+        }
+
+        [data-theme="dark"] .form-control,
+        [data-theme="dark"] .form-select,
+        [data-theme="dark"] .input-group-text {
+            background-color: rgba(15, 52, 96, 0.7);
+        }
+
+        [data-theme="dark"] .form-control:focus {
+            background-color: rgba(15, 52, 96, 0.9);
+        }
+
+        .form-label {
+            color: var(--text-color);
+        }
+
+        .input-group-text {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        /* Глубинные эффекты */
+        [data-theme="dark"] .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(253, 121, 168, 0.05));
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        [data-theme="dark"] .card:hover::after {
+            opacity: 1;
+        }
+
+        /* СКРОЛЛБАР ДЛЯ ТЁМНОЙ ТЕМЫ */
+        [data-theme="dark"] ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-track {
+            background: var(--dark-color);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+
+        /* Фоновые эффекты для тёмной темы */
+        [data-theme="dark"] body {
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(108, 92, 231, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(253, 121, 168, 0.1) 0%, transparent 20%);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="d-flex flex-column h-100">
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <i class="fas fa-fire me-2"></i>
+                <span class="gradient-text">MikoMarket</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="fas fa-home me-1"></i> Главная
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'create_listing' %}">
+                            <i class="fas fa-plus-circle me-1"></i> Создать объявление
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto">
+                    <!-- ТЁМНАЯ ТЕМА: КНОПКА -->
+                    <li class="nav-item me-2">
+                        <button id="themeToggle" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-moon me-1"></i> Тема
+                        </button>
+                    </li>
+
+                    {% if user.is_authenticated %}
+                    <li class="nav-item me-2">
+                        <a href="{% url 'saved_listings' %}" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-bookmark me-1"></i> Сохранённые
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end animate-fade-in">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user me-2"></i> Профиль</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form class="logout-form" action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item logout-btn">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Выйти
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item me-2">
+                        <a class="nav-link btn btn-outline-light btn-sm" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Войти
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary btn-sm btn-pulse" href="{% url 'register' %}">
+                            <i class="fas fa-user-plus me-1"></i> Регистрация
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-shrink-0">
+        <div class="container py-4">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate-fade-in" role="alert">
+                    <div class="d-flex align-items-center">
+                        {% if message.tags == 'success' %}
+                            <i class="fas fa-check-circle me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                        {% elif message.tags == 'info' %}
+                            <i class="fas fa-info-circle me-2"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer mt-auto py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                    <p class="mb-0">&copy; 2025 <span class="gradient-text fw-bold">MikoMarket</span>. Все права защищены.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <a href="#" class="social-icon"><i class="fab fa-telegram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-vk"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Кастомные скрипты -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Инициализация tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Анимация при скролле
+            const animateOnScroll = function () {
+                const elements = document.querySelectorAll('.animate-on-scroll');
+                elements.forEach(element => {
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    if (elementPosition < windowHeight - 100) {
+                        element.classList.add('animate-fade-in');
+                    }
+                });
+            };
+            animateOnScroll();
+            window.addEventListener('scroll', animateOnScroll);
+
+            // ТЁМНАЯ ТЕМА: ЛОГИКА
+            const toggleBtn = document.getElementById("themeToggle");
+            const root = document.documentElement;
+            const savedTheme = localStorage.getItem("theme");
+
+            // Применяем тему при загрузке
+            function applyTheme(theme) {
+                if (theme === "dark") {
+                    root.setAttribute("data-theme", "dark");
+                    toggleBtn.innerHTML = '<i class="fas fa-sun me-1"></i> Тема';
+                    localStorage.setItem("theme", "dark");
+                } else {
+                    root.removeAttribute("data-theme");
+                    toggleBtn.innerHTML = '<i class="fas fa-moon me-1"></i> Тема';
+                    localStorage.setItem("theme", "light");
+                }
+            }
+
+            // Проверяем сохранённую тему или системные настройки
+            if (savedTheme === "dark" ||
+                (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                applyTheme("dark");
+            }
+
+            // Обработчик переключения темы
+            toggleBtn.addEventListener("click", function () {
+                if (root.getAttribute("data-theme") === "dark") {
+                    applyTheme("light");
+                } else {
+                    applyTheme("dark");
+                }
+            });
+
+            // Следим за изменениями системной темы
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                if (!localStorage.getItem("theme")) {
+                    applyTheme(e.matches ? "dark" : "light");
+                }
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
